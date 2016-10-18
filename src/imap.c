@@ -1779,6 +1779,7 @@ static gint imap_add_msgs(Folder *folder, FolderItem *dest, GSList *file_list,
 		if (folder_has_parent_of_type(dest, F_QUEUE) ||
 		    folder_has_parent_of_type(dest, F_OUTBOX) ||
 		    folder_has_parent_of_type(dest, F_DRAFT) ||
+		    folder_has_parent_of_type(dest, F_JUNK) ||
 		    folder_has_parent_of_type(dest, F_TRASH))
 			iflags |= IMAP_FLAG_SEEN;
 
@@ -2849,6 +2850,9 @@ static gint imap_scan_tree_recursive(IMAPSession *session, FolderItem *item, gbo
 			} else if (!folder->trash && !g_ascii_strcasecmp(base, "Trash")) {
 				new_item->stype = F_TRASH;
 				folder->trash = new_item;
+			} else if (!folder->junk && !g_ascii_strcasecmp(base, "Junk")) {
+				new_item->stype = F_JUNK;
+				folder->junk = new_item;
 			}
 			g_free(base);
 		}

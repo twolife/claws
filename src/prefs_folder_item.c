@@ -307,6 +307,8 @@ static void prefs_folder_item_general_create_widget_func(PrefsPage * page_,
 		type = F_QUEUE;
 	else if (folder_has_parent_of_type(item, F_TRASH))
 		type = F_TRASH;
+	else if (folder_has_parent_of_type(item, F_JUNK))
+		type = F_JUNK;
 
 	folder_type_menu = GTK_LIST_STORE(gtk_combo_box_get_model(
 				GTK_COMBO_BOX(folder_type)));
@@ -317,6 +319,7 @@ static void prefs_folder_item_general_create_widget_func(PrefsPage * page_,
 	COMBOBOX_ADD (folder_type_menu, _("Drafts"),  F_DRAFT);
 	COMBOBOX_ADD (folder_type_menu, _("Queue"),  F_QUEUE);
 	COMBOBOX_ADD (folder_type_menu, _("Trash"),  F_TRASH);
+	COMBOBOX_ADD (folder_type_menu, _("Junk"),  F_JUNK);
 
 	combobox_select_by_data(GTK_COMBO_BOX(folder_type), type);
 
@@ -324,7 +327,7 @@ static void prefs_folder_item_general_create_widget_func(PrefsPage * page_,
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dummy_checkbtn), type != F_INBOX);
 	gtk_widget_set_sensitive(dummy_checkbtn, FALSE);
 
-	if (type == item->stype && type == F_NORMAL)
+	if (type == item->stype && (type == F_NORMAL || type == F_JUNK) )
 		gtk_widget_set_sensitive(folder_type, TRUE);
 	else
 		gtk_widget_set_sensitive(folder_type, FALSE);

@@ -87,6 +87,10 @@ static GdkPixbuf *trashopenxpm;
 static GdkPixbuf *trashopenhrmxpm;
 static GdkPixbuf *trashxpm;
 static GdkPixbuf *trashhrmxpm;
+static GdkPixbuf *junkopenxpm;
+static GdkPixbuf *junkopenhrmxpm;
+static GdkPixbuf *junkxpm;
+static GdkPixbuf *junkhrmxpm;
 static GdkPixbuf *queuexpm;
 static GdkPixbuf *queuehrmxpm;
 static GdkPixbuf *queueopenxpm;
@@ -114,6 +118,10 @@ static GdkPixbuf *m_trashopenxpm;
 static GdkPixbuf *m_trashopenhrmxpm;
 static GdkPixbuf *m_trashxpm;
 static GdkPixbuf *m_trashhrmxpm;
+static GdkPixbuf *m_junkopenxpm;
+static GdkPixbuf *m_junkopenhrmxpm;
+static GdkPixbuf *m_junkxpm;
+static GdkPixbuf *m_junkhrmxpm;
 static GdkPixbuf *m_queuexpm;
 static GdkPixbuf *m_queuehrmxpm;
 static GdkPixbuf *m_queueopenxpm;
@@ -179,6 +187,9 @@ static void mark_all_read_recursive_cb  (GtkAction 	*action,
 					 gpointer	 data);
 
 static void folderview_empty_trash_cb	(GtkAction 	*action,
+					 gpointer	 data);
+
+static void folderview_empty_junk_cb	(GtkAction 	*action,
 					 gpointer	 data);
 
 static void folderview_send_queue_cb	(GtkAction 	*action,
@@ -247,6 +258,7 @@ static GtkActionEntry folderview_common_popup_entries[] =
 	{"FolderViewPopup/Properties",		NULL, N_("_Properties..."), NULL, NULL, G_CALLBACK(folderview_property_cb) },
 	{"FolderViewPopup/Processing",		NULL, N_("Process_ing..."), NULL, NULL, G_CALLBACK(folderview_processing_cb) },
 	{"FolderViewPopup/EmptyTrash",		NULL, N_("Empty _trash..."), NULL, NULL, G_CALLBACK(folderview_empty_trash_cb) },
+	{"FolderViewPopup/EmptyJunk",		NULL, N_("Empty _junk..."), NULL, NULL, G_CALLBACK(folderview_empty_junk_cb) },
 	{"FolderViewPopup/SendQueue",		NULL, N_("Send _queue..."), NULL, NULL, G_CALLBACK(folderview_send_queue_cb) },
 	
 };
@@ -648,6 +660,10 @@ void folderview_init(FolderView *folderview)
 	stock_pixbuf_gdk(STOCK_PIXMAP_TRASH_OPEN_HRM, &trashopenhrmxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_TRASH_CLOSE, &trashxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_TRASH_CLOSE_HRM, &trashhrmxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_OPEN, &junkopenxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_OPEN_HRM, &junkopenhrmxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_CLOSE, &junkxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_CLOSE_HRM, &junkhrmxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_QUEUE_CLOSE, &queuexpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_QUEUE_CLOSE_HRM, &queuehrmxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_QUEUE_OPEN, &queueopenxpm);
@@ -675,6 +691,10 @@ void folderview_init(FolderView *folderview)
 	stock_pixbuf_gdk(STOCK_PIXMAP_TRASH_OPEN_HRM_MARK, &m_trashopenhrmxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_TRASH_CLOSE_MARK, &m_trashxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_TRASH_CLOSE_HRM_MARK, &m_trashhrmxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_OPEN_MARK, &m_junkopenxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_OPEN_HRM_MARK, &m_junkopenhrmxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_CLOSE_MARK, &m_junkxpm);
+	stock_pixbuf_gdk(STOCK_PIXMAP_JUNK_CLOSE_HRM_MARK, &m_junkhrmxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_QUEUE_CLOSE_MARK, &m_queuexpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_QUEUE_CLOSE_HRM_MARK, &m_queuehrmxpm);
 	stock_pixbuf_gdk(STOCK_PIXMAP_QUEUE_OPEN_MARK, &m_queueopenxpm);
@@ -1461,6 +1481,8 @@ static void folderview_update_node(FolderView *folderview, GtkCMCTreeNode *node)
 			stype = F_OUTBOX;
 		else if (folder_has_parent_of_type(item, F_QUEUE))
 			stype = F_QUEUE;
+		else if (folder_has_parent_of_type(item, F_JUNK))
+			stype = F_JUNK;
 	}
 	switch (stype) {
 	case F_INBOX:
@@ -1497,6 +1519,15 @@ static void folderview_update_node(FolderView *folderview, GtkCMCTreeNode *node)
 		} else {
 			xpm = mark?m_trashxpm:trashxpm;
 			openxpm = mark?m_trashopenxpm:trashopenxpm;
+		}
+		break;
+	case F_JUNK:
+		if (item->hide_read_msgs || item->hide_read_threads) {
+			xpm = mark?m_junkhrmxpm:junkhrmxpm;
+			openxpm = mark?m_junkopenhrmxpm:junkopenhrmxpm;
+		} else {
+			xpm = mark?m_junkxpm:junkxpm;
+			openxpm = mark?m_junkopenxpm:junkopenxpm;
 		}
 		break;
 	case F_DRAFT:
@@ -1613,6 +1644,7 @@ static void folderview_update_node(FolderView *folderview, GtkCMCTreeNode *node)
 	}
 
 	if (folder_has_parent_of_type(item, F_OUTBOX) ||
+	    folder_has_parent_of_type(item, F_JUNK) ||
 	    folder_has_parent_of_type(item, F_TRASH)) {
 		use_bold = use_color = FALSE;
 	} else if (folder_has_parent_of_type(item, F_QUEUE)) {
@@ -1813,6 +1845,7 @@ static void folderview_sort_folders(FolderView *folderview, GtkCMCTreeNode *root
 	set_special_folder(ctree, folder->draft, root, &prev);
 	set_special_folder(ctree, folder->queue, root, &prev);
 	set_special_folder(ctree, folder->trash, root, &prev);
+	set_special_folder(ctree, folder->junk, root, &prev);
 	gtk_cmclist_thaw(GTK_CMCLIST(ctree));
 }
 
@@ -1896,6 +1929,12 @@ static void folderview_set_sens_and_popup_menu(FolderView *folderview, gint row,
 		MENUITEM_ADDUI_MANAGER(ui_manager, "/Popup/FolderViewPopup", "SeparatorQueue", "FolderViewPopup/---", GTK_UI_MANAGER_SEPARATOR)
 		MENUITEM_ADDUI_MANAGER(ui_manager, "/Popup/FolderViewPopup", "SendQueue", "FolderViewPopup/SendQueue", GTK_UI_MANAGER_MENUITEM)
 	} 
+
+	if ((item == folder->junk
+	     || folder_has_parent_of_type(item, F_JUNK))) {
+		MENUITEM_ADDUI_MANAGER(ui_manager, "/Popup/FolderViewPopup", "SeparatorJunk", "FolderViewPopup/---", GTK_UI_MANAGER_SEPARATOR)
+		MENUITEM_ADDUI_MANAGER(ui_manager, "/Popup/FolderViewPopup", "EmptyJunk", "FolderViewPopup/EmptyJunk", GTK_UI_MANAGER_MENUITEM)
+	}
 	
 #define SET_SENS(name, sens) \
 	cm_menu_set_sensitive_full(ui_manager, "Popup/"name, sens)
@@ -1921,6 +1960,12 @@ static void folderview_set_sens_and_popup_menu(FolderView *folderview, gint row,
 	    || folder_has_parent_of_type(item, F_QUEUE)) {
 		GSList *msglist = folder_item_get_msg_list(item);
 		SET_SENS("FolderViewPopup/SendQueue", msglist != NULL);
+		procmsg_msg_list_free(msglist);
+	}
+	if (item == folder->junk
+	    || folder_has_parent_of_type(item, F_JUNK)) {
+		GSList *msglist = folder_item_get_msg_list(item);
+		SET_SENS("FolderViewPopup/EmptyJunk", msglist != NULL);
 		procmsg_msg_list_free(msglist);
 	}
 #undef SET_SENS
@@ -2411,6 +2456,45 @@ static void folderview_empty_trash_cb(GtkAction *action, gpointer data)
 			continue;
 		/* is it partially received? (partial_recv isn't cached) */
 		if (msginfo->total_size != 0 && 
+		    msginfo->size != (off_t)msginfo->total_size)
+			partial_mark_for_delete(msginfo);
+	}
+	procmsg_msg_list_free(mlist);
+
+	folder_item_remove_all_msg(item);
+}
+
+static void folderview_empty_junk_cb(GtkAction *action, gpointer data)
+{
+	FolderView *folderview = (FolderView *)data;
+	GtkCMCTree *ctree = GTK_CMCTREE(folderview->ctree);
+	FolderItem *item;
+	GSList *mlist = NULL;
+	GSList *cur = NULL;
+
+	if (!folderview->selected) return;
+	item = gtk_cmctree_node_get_row_data(ctree, folderview->selected);
+	cm_return_if_fail(item != NULL);
+	cm_return_if_fail(item->folder != NULL);
+
+	if (item != item->folder->junk
+	&&  !folder_has_parent_of_type(item, F_JUNK)) return;
+
+	if (prefs_common.ask_on_clean) {
+		if (alertpanel(_("Empty junk"),
+			       _("Delete all messages in junk?"),
+			       GTK_STOCK_CANCEL, _("+_Empty junk"), NULL) != G_ALERTALTERNATE)
+			return;
+	}
+
+	mlist = folder_item_get_msg_list(item);
+
+	for (cur = mlist ; cur != NULL ; cur = cur->next) {
+		MsgInfo * msginfo = (MsgInfo *) cur->data;
+		if (MSG_IS_LOCKED(msginfo->flags))
+			continue;
+		/* is it partially received? (partial_recv isn't cached) */
+		if (msginfo->total_size != 0 &&
 		    msginfo->size != (off_t)msginfo->total_size)
 			partial_mark_for_delete(msginfo);
 	}

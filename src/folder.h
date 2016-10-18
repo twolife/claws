@@ -63,7 +63,8 @@ typedef enum
 	F_OUTBOX,
 	F_DRAFT,
 	F_QUEUE,
-	F_TRASH
+	F_TRASH,
+	F_JUNK
 } SpecialFolderItemType;
 
 typedef enum
@@ -150,6 +151,7 @@ struct _Folder
 	FolderItem *draft;
 	FolderItem *queue;
 	FolderItem *trash;
+	FolderItem *junk;
 
 	FolderUIFunc ui_func;
 	gpointer     ui_func_data;

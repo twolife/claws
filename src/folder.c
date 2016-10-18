@@ -211,6 +211,7 @@ void folder_init(Folder *folder, const gchar *name)
 	folder->draft = NULL;
 	folder->queue = NULL;
 	folder->trash = NULL;
+	folder->junk = NULL;
 }
 
 static void reset_parent_type(FolderItem *item, gpointer data) {
@@ -247,6 +248,10 @@ void folder_item_change_type(FolderItem *item, SpecialFolderItemType newtype)
 	case F_TRASH:
 		folder_item_change_type(folder->trash, F_NORMAL);
 		folder->trash = item;
+		break;
+	case F_JUNK:
+		folder_item_change_type(folder->junk, F_NORMAL);
+		folder->junk = item;
 		break;
 	case F_NORMAL:
 	default:
@@ -499,6 +504,8 @@ void folder_item_destroy(FolderItem *item)
 			folder->queue = NULL;
 		else if (folder->trash == item)
 			folder->trash = NULL;
+		else if (folder->junk == item)
+			folder->junk = NULL;
 	}
 
 	if (item->cache)
@@ -548,6 +555,8 @@ void folder_item_set_xml(Folder *folder, FolderItem *item, XMLTag *tag)
 				item->stype = F_QUEUE;
 			else if (!g_ascii_strcasecmp(attr->value, "trash"))
 				item->stype = F_TRASH;
+			else if (!g_ascii_strcasecmp(attr->value, "junk"))
+				item->stype = F_JUNK;
 		} else if (!strcmp(attr->name, "name")) {
 			g_free(item->name);
 			item->name = g_strdup(attr->value);
@@ -659,7 +668,8 @@ void folder_item_set_xml(Folder *folder, FolderItem *item, XMLTag *tag)
 XMLTag *folder_item_get_xml(Folder *folder, FolderItem *item)
 {
 	static gchar *folder_item_stype_str[] = {"normal", "inbox", "outbox",
-						 "draft", "queue", "trash"};
+						 "draft", "queue", "trash",
+						 "junk"};
 	static gchar *sort_key_str[] = {"none", "number", "size", "date",
 					"from", "subject", "score", "label",
 					"mark", "unread", "mime", "to", 
@@ -1586,6 +1596,10 @@ gchar *folder_item_get_name(FolderItem *item)
 		name = g_strdup(!strcmp2(item->name, DRAFT_DIR) ? _("Drafts") :
 				item->name);
 		break;
+	case F_JUNK:
+		name = g_strdup(!strcmp2(item->name, JUNK_DIR) ? _("Junk") :
+				item->name);
+		break;
 	default:
 		break;
 	}
@@ -2432,6 +2446,7 @@ gint folder_item_scan_full(FolderItem *item, gboolean filtering)
 		}
 		if ((folder_has_parent_of_type(item, F_OUTBOX) ||
 		     folder_has_parent_of_type(item, F_QUEUE)  ||
+		     folder_has_parent_of_type(item, F_JUNK)  ||
 		     folder_has_parent_of_type(item, F_TRASH)) &&
 		    (MSG_IS_NEW(msginfo->flags) || MSG_IS_UNREAD(msginfo->flags)))
 			procmsg_msginfo_unset_flags(msginfo, MSG_NEW | MSG_UNREAD, 0);
@@ -3032,6 +3047,7 @@ static void copy_msginfo_flags(MsgInfo *source, MsgInfo *dest)
 	if (folder_has_parent_of_type(dest->folder, F_OUTBOX) || 
 	    folder_has_parent_of_type(dest->folder, F_QUEUE) || 
 	    folder_has_parent_of_type(dest->folder, F_DRAFT) || 
+	    folder_has_parent_of_type(dest->folder, F_JUNK) || 
 	    folder_has_parent_of_type(dest->folder, F_TRASH))
 		perm_flags &= ~(MSG_NEW | MSG_UNREAD | MSG_DELETED);
 
@@ -4064,6 +4080,7 @@ static gpointer xml_to_folder_item(gpointer nodedata, gpointer data)
 	case F_DRAFT:  folder->draft  = item; break;
 	case F_QUEUE:  folder->queue  = item; break;
 	case F_TRASH:  folder->trash  = item; break;
+	case F_JUNK:   folder->junk   = item; break;
 	default:       break;
 	}
 	folder_item_prefs_read_config(item);

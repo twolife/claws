@@ -140,6 +140,7 @@ static void set_sensitivity(GtkUIManager *ui_manager, FolderItem *item)
 			!folder_has_parent_of_type(item, F_OUTBOX) &&
 			!folder_has_parent_of_type(item, F_DRAFT) &&
 			!folder_has_parent_of_type(item, F_QUEUE) &&
+			!folder_has_parent_of_type(item, F_JUNK) &&
 			!folder_has_parent_of_type(item, F_TRASH);
 
 #define SET_SENS(name, sens) \

@@ -201,6 +201,10 @@
 #include "pixmaps/tray_unreadmail.xpm"
 #include "pixmaps/tray_unreadmarkedmail_offline.xpm"
 #include "pixmaps/tray_unreadmarkedmail.xpm"
+#include "pixmaps/junk.xpm"
+#include "pixmaps/junk_mark.xpm"
+#include "pixmaps/junk_hrm.xpm"
+#include "pixmaps/junk_hrm_mark.xpm"
 
 typedef struct _StockPixmapData	StockPixmapData;
 
@@ -328,6 +332,10 @@ static StockPixmapData pixmaps[] =
 	{trash_open_hrm_xpm			, NULL, NULL, "trash_open_hrm", NULL},
 	{trash_close_xpm			, NULL, NULL, "trash_close", NULL},
 	{trash_close_hrm_xpm			, NULL, NULL, "trash_close_hrm", NULL},
+	{junk_xpm				, NULL, NULL, "junk_open", NULL},
+	{junk_hrm_xpm				, NULL, NULL, "junk_open_hrm", NULL},
+	{junk_xpm				, NULL, NULL, "junk_close", NULL},
+	{junk_hrm_xpm				, NULL, NULL, "junk_close_hrm", NULL},
 	{queue_close_mark_xpm			, NULL, NULL, "queue_close_mark", NULL},
 	{queue_close_hrm_mark_xpm		, NULL, NULL, "queue_close_hrm_mark", NULL},
 	{queue_open_mark_xpm			, NULL, NULL, "queue_open_mark", NULL},
@@ -336,6 +344,10 @@ static StockPixmapData pixmaps[] =
 	{trash_open_hrm_mark_xpm		, NULL, NULL, "trash_open_hrm_mark", NULL},
 	{trash_close_mark_xpm			, NULL, NULL, "trash_close_mark", NULL},
 	{trash_close_hrm_mark_xpm		, NULL, NULL, "trash_close_hrm_mark", NULL},
+	{junk_mark_xpm				, NULL, NULL, "junk_open_mark", NULL},
+	{junk_hrm_mark_xpm			, NULL, NULL, "junk_open_hrm_mark", NULL},
+	{junk_mark_xpm				, NULL, NULL, "junk_close_mark", NULL},
+	{junk_hrm_mark_xpm			, NULL, NULL, "junk_close_hrm_mark", NULL},
 	{unread_xpm				, NULL, NULL, "unread", NULL},
 	{vcard_xpm				, NULL, NULL, "vcard", NULL},
 	{online_xpm				, NULL, NULL, "online", NULL},
