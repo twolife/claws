@@ -1056,6 +1056,10 @@ AC_ARG_ENABLE(spamassassin-plugin,
 		[  --disable-spamassassin-plugin   Do not build spamassassin plugin],
 		[enable_spamassassin_plugin=$enableval], [enable_spamassassin_plugin=auto])
 
+AC_ARG_ENABLE(spam_movetojunk-plugin,
+		[  --disable-spam_movetojunk-plugin    Do not build spam_movetojunk plugin],
+		[enable_spam_movetojunk_plugin=$enableval], [enable_spam_movetojunk_plugin=auto])
+
 AC_ARG_ENABLE(spam_report-plugin,
 		[  --disable-spam_report-plugin    Do not build spam_report plugin],
 		[enable_spam_report_plugin=$enableval], [enable_spam_report_plugin=auto])
@@ -1758,6 +1762,15 @@ else
 	AC_MSG_RESULT(no)
 fi
 
+AC_MSG_CHECKING([whether to build spam_movetojunk plugin])
+if test x"$enable_spam_movetojunk_plugin" != xno; then
+	PLUGINS="$PLUGINS spam_movetojunk"
+	AC_MSG_RESULT(yes)
+else
+	DISABLED_PLUGINS="$DISABLED_PLUGINS spam_movetojunk"
+	AC_MSG_RESULT(no)
+fi
+
 AC_MSG_CHECKING([whether to build smime plugin])
 if test x"$enable_smime_plugin" != xno; then
 	dependencies_missing=""
@@ -1878,6 +1891,7 @@ AM_CONDITIONAL(BUILD_PGPINLINE_PLUGIN,		test x"$enable_pgpinline_plugin" != xno)
 AM_CONDITIONAL(BUILD_RSSYL_PLUGIN,		test x"$enable_rssyl_plugin" != xno)
 AM_CONDITIONAL(BUILD_SMIME_PLUGIN,		test x"$enable_smime_plugin" != xno)
 AM_CONDITIONAL(BUILD_SPAMASSASSIN_PLUGIN,	test x"$enable_spamassassin_plugin" != xno)
+AM_CONDITIONAL(BUILD_SPAM_MOVETOJUNK_PLUGIN,	test x"$enable_spam_movetojunk_plugin" != xno)
 AM_CONDITIONAL(BUILD_SPAM_REPORT_PLUGIN,	test x"$enable_spam_report_plugin" != xno)
 AM_CONDITIONAL(BUILD_TNEF_PARSE_PLUGIN,		test x"$enable_tnef_parse_plugin" != xno)
 AM_CONDITIONAL(BUILD_VCALENDAR_PLUGIN,		test x"$enable_vcalendar_plugin" != xno)
@@ -1929,6 +1943,7 @@ src/plugins/rssyl/Makefile
 src/plugins/rssyl/libfeed/Makefile
 src/plugins/smime/Makefile
 src/plugins/spamassassin/Makefile
+src/plugins/spam_movetojunk/Makefile
 src/plugins/spam_report/Makefile
 src/plugins/tnef_parse/Makefile
 src/plugins/vcalendar/Makefile

@@ -30,6 +30,7 @@ SUBDIRS = \
 	rssyl \
 	smime \
 	spamassassin \
+	spam_movetojunk \
 	spam_report \
 	tnef_parse \
 	vcalendar
